@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#7a0e0e" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Conversor Missa" />
+<title>Conversor Missa - Holyrics</title>
+<link rel="manifest" href="/static/manifest.webmanifest" />
+<style>
+  :root {
+    --vermelho: #B81414;
+    --vermelho-escuro: #7a0e0e;
+    --bege: #F8F5EF;
+    --texto: #1f1f1f;
+    --texto-suave: #555;
+    --borda: #e5e0d6;
+    --sombra: 0 8px 24px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    background: var(--bege);
+    color: var(--texto);
+    line-height: 1.4;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  header {
+    background: linear-gradient(135deg, var(--vermelho) 0%,
+                                          var(--vermelho-escuro) 100%);
+    color: white;
+    padding: 1.4rem 1rem 1.2rem;
+    text-align: center;
+    box-shadow: var(--sombra);
+  }
+  header h1 {
+    margin: 0; font-size: 1.4rem; font-weight: 600;
+    letter-spacing: .3px;
+  }
+  header p { margin: .3rem 0 0; opacity: .9; font-size: .9rem; }
+
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: var(--sombra);
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .dropzone {
+    border: 2px dashed var(--borda);
+    border-radius: 14px;
+    padding: 1.6rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all .15s ease;
+    background: white;
+  }
+  .dropzone:hover, .dropzone.drag {
+    border-color: var(--vermelho);
+    background: #fff5f5;
+  }
+  .dropzone .icon {
+    font-size: 2.6rem; margin-bottom: .4rem; line-height: 1;
+  }
+  .dropzone .titulo { font-weight: 600; margin-bottom: .2rem; }
+  .dropzone .sub { color: var(--texto-suave); font-size: .9rem; }
+  .dropzone input[type=file] { display: none; }
+
+  .arquivo-info {
+    display: none;
+    align-items: center;
+    gap: .6rem;
+    padding: .8rem;
+    background: #f4ede0;
+    border-radius: 10px;
+    margin-top: .8rem;
+    font-size: .9rem;
+  }
+  .arquivo-info.visivel { display: flex; }
+  .arquivo-info .nome { flex: 1; word-break: break-all; }
+  .arquivo-info button {
+    background: none; border: none; color: var(--vermelho);
+    cursor: pointer; font-size: 1.2rem; padding: 0 .3rem;
+  }
+
+  .botao {
+    display: block;
+    width: 100%;
+    background: var(--vermelho);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .botao:hover { background: var(--vermelho-escuro); }
+  .botao:disabled { opacity: .6; cursor: not-allowed; }
+  .botao.secundario {
+    background: white; color: var(--vermelho);
+    border: 2px solid var(--vermelho);
+  }
+  .botao.secundario:hover { background: #fff5f5; }
+
+  .progresso {
+    display: none;
+    text-align: center;
+    padding: 1.2rem 0;
+    color: var(--texto-suave);
+  }
+  .progresso.visivel { display: block; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 4px solid #eee;
+    border-top-color: var(--vermelho);
+    border-radius: 50%;
+    animation: girar .9s linear infinite;
+    margin: 0 auto .6rem;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  .resultado { display: none; }
+  .resultado.visivel { display: block; }
+
+  .parte {
+    border-left: 4px solid var(--vermelho);
+    padding-left: .9rem;
+    margin-bottom: 1rem;
+  }
+  .parte h3 { margin: .2rem 0 .3rem; font-size: 1rem; }
+  .parte .meta { color: var(--texto-suave); font-size: .85rem; margin-bottom: .6rem; }
+  .parte .acoes {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+  }
+  .parte .acoes .botao {
+    flex: 1 1 140px; padding: .7rem; font-size: .9rem;
+  }
+
+  .erro {
+    background: #fde7e7;
+    border: 1px solid #f5c0c0;
+    color: #8b0e0e;
+    padding: .9rem 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    display: none;
+  }
+  .erro.visivel { display: block; }
+  .erro strong { display: block; margin-bottom: .3rem; }
+
+  details {
+    margin-top: 1rem;
+    padding: .8rem 1rem;
+    background: #fafaf6;
+    border-radius: 10px;
+    color: var(--texto-suave);
+    font-size: .9rem;
+  }
+  details summary {
+    cursor: pointer; font-weight: 600; color: var(--texto);
+  }
+  details ol { margin: .6rem 0 0; padding-left: 1.4rem; }
+  details li { margin-bottom: .3rem; }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: var(--texto-suave);
+    font-size: .85rem;
+  }
+  footer a { color: var(--vermelho); text-decoration: none; }
+
+  .toast {
+    position: fixed;
+    left: 50%; bottom: 1.6rem;
+    transform: translateX(-50%) translateY(120%);
+    background: #1f1f1f; color: white;
+    padding: .7rem 1.1rem;
+    border-radius: 30px;
+    font-size: .9rem;
+    box-shadow: var(--sombra);
+    transition: transform .25s ease;
+    z-index: 50;
+  }
+  .toast.visivel { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Conversor Missa &rarr; Holyrics</h1>
+  <p>Solte o folheto (PDF, Versão Celular) e baixe os TXTs prontos.</p>
+</header>
+
+<main>
+  <div class="card">
+    <label for="entrada-pdf" class="dropzone" id="dropzone">
+      <div class="icon">📄</div>
+      <div class="titulo">Toque para selecionar o PDF</div>
+      <div class="sub">ou arraste e solte aqui (computador)</div>
+      <input id="entrada-pdf" type="file" accept="application/pdf,.pdf" />
+    </label>
+
+    <div class="arquivo-info" id="arquivo-info">
+      <div>📎</div>
+      <div class="nome" id="arquivo-nome"></div>
+      <button title="Remover" id="remover" type="button">✕</button>
+    </div>
+
+    <button class="botao" id="botao-converter" style="margin-top: 1rem;" disabled>
+      Converter
+    </button>
+
+    <div class="erro" id="erro">
+      <strong>Algo deu errado</strong>
+      <span id="erro-msg"></span>
+    </div>
+  </div>
+
+  <div class="progresso card" id="progresso">
+    <div class="spinner"></div>
+    <div>Convertendo o PDF…</div>
+  </div>
+
+  <div class="resultado" id="resultado">
+    <div class="card">
+      <h2 style="margin-top:0;">Pronto!</h2>
+      <p style="color: var(--texto-suave); margin: 0 0 1rem;">
+        Os arquivos abaixo já estão no formato esperado pelo Holyrics.
+      </p>
+
+      <div class="parte" id="parte1-card">
+        <h3 id="parte1-nome">Parte 1.txt</h3>
+        <div class="meta" id="parte1-meta"></div>
+        <div class="acoes">
+          <button class="botao" data-acao="copiar" data-parte="1">Copiar texto</button>
+          <button class="botao secundario" data-acao="baixar" data-parte="1">Baixar arquivo</button>
+        </div>
+      </div>
+
+      <div class="parte" id="parte2-card">
+        <h3 id="parte2-nome">Parte 2.txt</h3>
+        <div class="meta" id="parte2-meta"></div>
+        <div class="acoes">
+          <button class="botao" data-acao="copiar" data-parte="2">Copiar texto</button>
+          <button class="botao secundario" data-acao="baixar" data-parte="2">Baixar arquivo</button>
+        </div>
+      </div>
+
+      <button class="botao secundario" id="novo" style="margin-top: 1rem;">
+        Converter outro PDF
+      </button>
+    </div>
+  </div>
+
+  <details>
+    <summary>Como usar no Holyrics</summary>
+    <ol>
+      <li>Toque em <strong>Copiar texto</strong> (Parte 1).</li>
+      <li>No Holyrics, crie um novo <em>Texto</em> e cole.</li>
+      <li>Repita para a <strong>Parte 2</strong> (a partir da Homilia).</li>
+      <li>O cabeçalho <code>&lt;styled&gt;</code> e as tags
+          <code>&lt;color&gt;</code> são interpretados automaticamente
+          pelo Holyrics.</li>
+    </ol>
+  </details>
+
+</main>
+
+<footer>
+  Feito com Flask + pdfplumber.
+  Sugerido: salvar este link nos favoritos do navegador.
+</footer>
+
+<div class="toast" id="toast">Texto copiado!</div>
+
+<script>
+const dropzone   = document.getElementById('dropzone');
+const inputPdf   = document.getElementById('entrada-pdf');
+const infoBox    = document.getElementById('arquivo-info');
+const infoNome   = document.getElementById('arquivo-nome');
+const btnRemover = document.getElementById('remover');
+const btnConv    = document.getElementById('botao-converter');
+const erroBox    = document.getElementById('erro');
+const erroMsg    = document.getElementById('erro-msg');
+const progresso  = document.getElementById('progresso');
+const resultado  = document.getElementById('resultado');
+const btnNovo    = document.getElementById('novo');
+const toast      = document.getElementById('toast');
+
+let pdfSelecionado = null;
+let conteudos      = { 1: null, 2: null };
+
+function mostrarErro(msg) {
+  erroMsg.textContent = msg;
+  erroBox.classList.add('visivel');
+  setTimeout(() => erroBox.classList.remove('visivel'), 6000);
+}
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('visivel');
+  setTimeout(() => toast.classList.remove('visivel'), 1800);
+}
+
+function selecionarArquivo(arquivo) {
+  if (!arquivo) return;
+  if (!arquivo.name.toLowerCase().endsWith('.pdf')) {
+    mostrarErro('Selecione um arquivo PDF.');
+    return;
+  }
+  pdfSelecionado = arquivo;
+  infoNome.textContent = arquivo.name;
+  infoBox.classList.add('visivel');
+  btnConv.disabled = false;
+  resultado.classList.remove('visivel');
+}
+
+inputPdf.addEventListener('change', (e) => {
+  selecionarArquivo(e.target.files[0]);
+});
+
+['dragenter','dragover'].forEach(ev =>
+  dropzone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropzone.classList.add('drag');
+  }));
+['dragleave','drop'].forEach(ev =>
+  dropzone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropzone.classList.remove('drag');
+  }));
+dropzone.addEventListener('drop', (e) => {
+  selecionarArquivo(e.dataTransfer.files[0]);
+});
+
+btnRemover.addEventListener('click', (e) => {
+  e.preventDefault(); e.stopPropagation();
+  pdfSelecionado = null;
+  inputPdf.value = '';
+  infoBox.classList.remove('visivel');
+  btnConv.disabled = true;
+});
+
+btnConv.addEventListener('click', async () => {
+  if (!pdfSelecionado) return;
+  erroBox.classList.remove('visivel');
+  resultado.classList.remove('visivel');
+  progresso.classList.add('visivel');
+  btnConv.disabled = true;
+
+  const fd = new FormData();
+  fd.append('pdf', pdfSelecionado);
+
+  try {
+    const resp = await fetch('/converter', { method: 'POST', body: fd });
+    const data = await resp.json();
+    if (!resp.ok || !data.ok) {
+      throw new Error(data.erro || 'Falha desconhecida.');
+    }
+    conteudos[1] = data.parte1;
+    conteudos[2] = data.parte2;
+
+    document.getElementById('parte1-nome').textContent = data.parte1.nome;
+    document.getElementById('parte1-meta').textContent =
+      formatarTamanho(data.parte1.tamanho);
+    document.getElementById('parte2-nome').textContent = data.parte2.nome;
+    document.getElementById('parte2-meta').textContent =
+      formatarTamanho(data.parte2.tamanho);
+
+    progresso.classList.remove('visivel');
+    resultado.classList.add('visivel');
+    resultado.scrollIntoView({behavior: 'smooth', block: 'start'});
+  } catch (err) {
+    progresso.classList.remove('visivel');
+    mostrarErro(err.message || 'Falha ao converter.');
+  } finally {
+    btnConv.disabled = false;
+  }
+});
+
+document.querySelectorAll('[data-acao]').forEach((btn) => {
+  btn.addEventListener('click', async (e) => {
+    const parte = e.currentTarget.dataset.parte;
+    const acao  = e.currentTarget.dataset.acao;
+    const c     = conteudos[parte];
+    if (!c) return;
+    if (acao === 'copiar') {
+      try {
+        await navigator.clipboard.writeText(c.conteudo);
+        showToast('Texto copiado!');
+      } catch {
+        // Fallback: textarea + execCommand
+        const ta = document.createElement('textarea');
+        ta.value = c.conteudo;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); showToast('Texto copiado!'); }
+        catch { showToast('Não consegui copiar — use Baixar.'); }
+        ta.remove();
+      }
+    } else if (acao === 'baixar') {
+      const blob = new Blob([c.conteudo], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = c.nome;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+  });
+});
+
+btnNovo.addEventListener('click', () => {
+  pdfSelecionado = null;
+  inputPdf.value = '';
+  infoBox.classList.remove('visivel');
+  btnConv.disabled = true;
+  resultado.classList.remove('visivel');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+
+function formatarTamanho(n) {
+  if (n < 1024) return n + ' caracteres';
+  return (n / 1024).toFixed(1) + ' KB';
+}
+</script>
+
+</body>
+</html>
