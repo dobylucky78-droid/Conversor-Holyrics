@@ -1,0 +1,17 @@
+{
+  "name": "Conversor Missa - Holyrics",
+  "short_name": "Conversor Missa",
+  "description": "Converte folhetos da Missa em TXT prontos para o Holyrics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F5EF",
+  "theme_color": "#7a0e0e",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
